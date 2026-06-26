@@ -6,6 +6,7 @@ import {
   Modal, PanResponder,
 } from 'react-native';
 import Svg, { Path, Rect, Text as SvgText } from 'react-native-svg';
+import { BlurView } from 'expo-blur';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
 
@@ -328,7 +329,7 @@ function SwipeView({ accessToken }) {
 
   return (
     <View style={styles.swipeContainer}>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 12 }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 130 }}>
         <ProfileBody
           profile={profile}
           endorsements={endorsements}
@@ -337,14 +338,14 @@ function SwipeView({ accessToken }) {
         />
       </ScrollView>
 
-      <View style={styles.actionRow}>
+      <BlurView intensity={8} tint="light" style={styles.actionRow}>
         <TouchableOpacity style={[styles.actionButton, styles.nopeButton]} onPress={advance}>
           <Text style={styles.actionButtonText}>✕</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.actionButton, styles.likeButton]} onPress={advance}>
           <Text style={styles.actionButtonText}>♥</Text>
         </TouchableOpacity>
-      </View>
+      </BlurView>
 
       {selectedEndorser && (
         <EndorserModal
@@ -437,8 +438,11 @@ const styles = StyleSheet.create({
 
   // Action buttons
   actionRow: {
+    position: 'absolute', bottom: 0, left: 0, right: 0,
     flexDirection: 'row', justifyContent: 'center',
     gap: 40, paddingBottom: 40, paddingTop: 16,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(255,255,255,0.25)',
   },
   actionButton: {
     width: 64, height: 64, borderRadius: 32,
