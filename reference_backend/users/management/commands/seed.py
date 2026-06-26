@@ -68755,7 +68755,7 @@ class Command(BaseCommand):
         with transaction.atomic():
             Endorsement.objects.all().delete()
             ProfilePicture.objects.all().delete()
-            User.objects.filter(is_superuser=False).delete()
+            User.objects.all().delete()
 
             users = {}
             for data in CHARACTERS:
