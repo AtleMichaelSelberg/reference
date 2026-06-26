@@ -68608,6 +68608,8 @@ CHARACTERS = [
         'last_name': '',
         'gender': 'male',
         'bio': '',
+        'is_superuser': True,
+        'is_staff': True,
     },
     {
         'username': 'liz',
@@ -68617,6 +68619,8 @@ CHARACTERS = [
         'last_name': '',
         'gender': 'female',
         'bio': '',
+        'is_superuser': True,
+        'is_staff': True,
     },
 ]
 
@@ -68763,6 +68767,8 @@ class Command(BaseCommand):
                     last_name=data['last_name'],
                     gender=data['gender'],
                     bio=data['bio'],
+                    is_superuser=data.get('is_superuser', False),
+                    is_staff=data.get('is_staff', False),
                 )
                 if data['username'] in IMAGE_DATA:
                     image_bytes = base64.b64decode(''.join(IMAGE_DATA[data['username']]))

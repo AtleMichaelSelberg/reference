@@ -5,8 +5,42 @@ import {
   ScrollView, useWindowDimensions, Image, ActivityIndicator,
   Modal, PanResponder,
 } from 'react-native';
+import Svg, { Path, Rect, Text as SvgText } from 'react-native-svg';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
+
+// ─── Login logo ──────────────────────────────────────────────────────────────
+
+function LoginLogo() {
+  return (
+    <Svg width={240} height={210} viewBox="0 0 240 210" style={{ marginBottom: 28 }}>
+      {/* "Reference" — fancy italic blue */}
+      <SvgText
+        x="120"
+        y="48"
+        textAnchor="middle"
+        fontFamily="Georgia, serif"
+        fontStyle="italic"
+        fontWeight="bold"
+        fontSize="40"
+        fill="#007AFF"
+      >
+        Reference
+      </SvgText>
+
+      {/* Blue heart */}
+      <Path
+        d="M120,195 C88,163 48,139 48,107 C48,83 64,75 80,75 C96,75 112,86.6 120,102.8 C128,86.6 144,75 160,75 C176,75 192,83 192,107 C192,139 152,163 120,195 Z"
+        fill="#007AFF"
+      />
+
+      {/* 3 white horizontal bars */}
+      <Rect x="82"  y="115" width="76" height="7" rx="3.5" fill="white" />
+      <Rect x="87"  y="133" width="66" height="7" rx="3.5" fill="white" />
+      <Rect x="93"  y="151" width="54" height="7" rx="3.5" fill="white" />
+    </Svg>
+  );
+}
 
 // ─── Login ───────────────────────────────────────────────────────────────────
 
@@ -37,6 +71,7 @@ function LoginScreen({ onLogin }) {
 
   return (
     <View style={styles.container}>
+      <LoginLogo />
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -58,11 +93,6 @@ function LoginScreen({ onLogin }) {
           ? <ActivityIndicator color="#fff" />
           : <Text style={styles.buttonText}>Login</Text>}
       </TouchableOpacity>
-      <View style={styles.spacer} />
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Join with code</Text>
-      </TouchableOpacity>
-      <TextInput style={styles.input} placeholder="Join Code" />
       <StatusBar style="auto" />
     </View>
   );
@@ -345,7 +375,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center',
   },
-  spacer: { height: 24 },
+
   input: {
     width: 280, borderWidth: 1, borderColor: '#ccc', borderRadius: 8,
     padding: 12, marginBottom: 16, textAlign: 'center',

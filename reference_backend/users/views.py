@@ -52,7 +52,7 @@ class CandidatesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        ids = User.objects.values_list('id', flat=True)
+        ids = User.objects.filter(is_superuser=False).values_list('id', flat=True)
         return Response({'user_ids': list(ids)})
 
 
