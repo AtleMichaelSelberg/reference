@@ -10,7 +10,7 @@ services:
     runtime: python
     rootDir: reference_backend
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
-    startCommand: python manage.py migrate && python manage.py seed && gunicorn config.wsgi
+    startCommand: python manage.py migrate && gunicorn config.wsgi
     plan: free
     envVars:
       - key: SECRET_KEY
