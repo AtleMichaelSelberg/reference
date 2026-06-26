@@ -26,11 +26,13 @@ services:
       - key: CORS_ALLOWED_ORIGINS
         value: https://reference-frontend.onrender.com
 
-  - type: static
+  - type: web
     name: reference-frontend
+    runtime: node
     rootDir: reference_frontend
     buildCommand: npm install && npx expo export --platform web
-    staticPublishPath: dist
+    startCommand: npx serve dist --listen 10000
+    plan: free
     envVars:
       - key: EXPO_PUBLIC_API_URL
         value: https://reference-backend.onrender.com
