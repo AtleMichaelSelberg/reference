@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Exists, OuterRef, Q
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
@@ -52,7 +52,17 @@ class CandidatesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        ids = User.objects.filter(is_superuser=False).values_list('id', flat=True)
+        has_romantic = Endorsement.objects.filter(
+            Q(first_user=OuterRef('pk')) | Q(second_user=OuterRef('pk')),
+            endorsement_type='romantic',
+        )
+        ids = (
+            User.objects
+            .filter(is_superuser=False)
+            .annotate(has_romantic=Exists(has_romantic))
+            .order_by('-has_romantic', 'id')
+            .values_list('id', flat=True)
+        )
         return Response({'user_ids': list(ids)})
 
 
