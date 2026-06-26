@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+
+# Django
+db.sqlite3
+staticfiles/
+
+# Environment
+.env
+*.env.local
+
+# Node / Expo
+node_modules/
+dist/
+.expo/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
