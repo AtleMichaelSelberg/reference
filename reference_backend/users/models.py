@@ -12,6 +12,8 @@ class User(AbstractUser):
     bio = models.TextField(blank=True)
     avatar_url = models.URLField(blank=True)
     gender = models.CharField(max_length=6, choices=Gender.choices, blank=True)
+    can_try_to_kill = models.BooleanField(default=False)
+    is_unkillable = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -74,3 +76,11 @@ class Endorsement(models.Model):
 
     def __str__(self):
         return f"Endorsement({self.first_user} <-> {self.second_user}, {self.endorsement_type})"
+
+
+class Feedback(models.Model):
+    comments = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Feedback({self.id})"

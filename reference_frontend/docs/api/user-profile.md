@@ -82,7 +82,9 @@ Obtain a token via `POST /api/users/login/` with `{ "email": "...", "password": 
         "image_data": "<base64-encoded bytes, or null>",
         "image_url": ""       // external URL, or empty string
       }
-    ]
+    ],
+    "can_try_to_kill": false,   // whether the UI should show a KILL action for this user
+    "is_unkillable": false      // if true, kill attempts always fail (show toast, don't advance)
   },
   "endorsements": [
     {
@@ -117,6 +119,10 @@ Obtain a token via `POST /api/users/login/` with `{ "email": "...", "password": 
 - `image_data` is a base64-encoded string of raw image bytes. Decode it to render the image directly without a second network request. Will be `null` if not set.
 - `image_url` is a plain URL string. Empty string `""` if not set.
 - A picture will always have at least one of `image_data` or `image_url`.
+
+**`user.can_try_to_kill`** / **`user.is_unkillable`**
+- `can_try_to_kill: true` means the KILL button should be shown for this profile.
+- `is_unkillable: true` means a kill attempt should fail with a toast — do not advance. Both fields default to `false`.
 
 **`endorsements`**
 - The requested user appears as either `first_user` or `second_user` — there is no guaranteed slot. To find the "other" person in each endorsement, check which of `first_user.id` / `second_user.id` matches the `id` you requested.

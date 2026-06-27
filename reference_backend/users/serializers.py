@@ -1,7 +1,7 @@
 import base64
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
-from .models import User, ProfilePicture, Endorsement
+from .models import User, ProfilePicture, Endorsement, Feedback
 
 
 class ProfilePictureSerializer(serializers.ModelSerializer):
@@ -22,7 +22,7 @@ class UserSummarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'bio', 'profile_pictures']
+        fields = ['id', 'first_name', 'last_name', 'bio', 'profile_pictures', 'can_try_to_kill', 'is_unkillable']
 
 
 class EndorsementSerializer(serializers.ModelSerializer):
@@ -68,6 +68,13 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         return User.objects.create_user(**validated_data)
+
+
+class FeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feedback
+        fields = ['id', 'comments', 'created_at']
+        read_only_fields = ['id', 'created_at']
 
 
 class ChangePasswordSerializer(serializers.Serializer):

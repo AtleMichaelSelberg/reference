@@ -1,10 +1,10 @@
-from django.db.models import Exists, OuterRef, Q
+from django.db.models import Q
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import User, Endorsement
-from .serializers import UserSerializer, UserSummarySerializer, EndorsementSerializer, RegisterSerializer, ChangePasswordSerializer
+from .models import User, Endorsement, Feedback
+from .serializers import UserSerializer, UserSummarySerializer, EndorsementSerializer, RegisterSerializer, ChangePasswordSerializer, FeedbackSerializer
 
 
 class RegisterView(generics.CreateAPIView):
@@ -52,15 +52,11 @@ class CandidatesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        has_romantic = Endorsement.objects.filter(
-            Q(first_user=OuterRef('pk')) | Q(second_user=OuterRef('pk')),
-            endorsement_type='romantic',
-        )
         ids = (
             User.objects
             .filter(is_superuser=False)
-            .annotate(has_romantic=Exists(has_romantic))
-            .order_by('-has_romantic', 'id')
+            .exclude(pk=request.user.pk)
+            .order_by('id')
             .values_list('id', flat=True)
         )
         return Response({'user_ids': list(ids)})
@@ -90,3 +86,13 @@ class UserProfileView(APIView):
             'user': UserSummarySerializer(user).data,
             'endorsements': EndorsementSerializer(endorsements, many=True).data,
         })
+
+
+class FeedbackView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = FeedbackSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

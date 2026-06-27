@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import {
   StyleSheet, Text, View, TextInput, TouchableOpacity,
   ScrollView, useWindowDimensions, Image, ActivityIndicator,
-  Modal, PanResponder,
+  Modal, PanResponder, Animated,
 } from 'react-native';
 import Svg, { Path, Rect, Text as SvgText } from 'react-native-svg';
 import { BlurView } from 'expo-blur';
@@ -14,88 +14,95 @@ const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
 
 function LoginLogo() {
   return (
-    <Svg width={240} height={210} viewBox="0 0 240 210" style={{ marginBottom: 28 }}>
-      {/* "Reference" — fancy italic blue */}
+    <Svg width={240} height={210} viewBox="0 0 240 210" style={{ marginBottom: 20 }}>
       <SvgText
         x="120"
-        y="48"
+        y="55"
         textAnchor="middle"
         fontFamily="Georgia, serif"
         fontStyle="italic"
         fontWeight="bold"
-        fontSize="40"
+        fontSize="48"
         fill="#007AFF"
       >
         Reference
       </SvgText>
 
-      {/* Blue heart */}
       <Path
-        d="M120,195 C88,163 48,139 48,107 C48,83 64,75 80,75 C96,75 112,86.6 120,102.8 C128,86.6 144,75 160,75 C176,75 192,83 192,107 C192,139 152,163 120,195 Z"
+        d="M120,205 C88,173 48,149 48,117 C48,93 64,85 80,85 C96,85 112,96.6 120,112.8 C128,96.6 144,85 160,85 C176,85 192,93 192,117 C192,149 152,173 120,205 Z"
         fill="#007AFF"
       />
-
-      {/* 3 white horizontal bars */}
-      <Rect x="82"  y="115" width="76" height="7" rx="3.5" fill="white" />
-      <Rect x="87"  y="133" width="66" height="7" rx="3.5" fill="white" />
-      <Rect x="93"  y="151" width="54" height="7" rx="3.5" fill="white" />
+      <Rect x="82" y="125" width="76" height="7" rx="3.5" fill="white" />
+      <Rect x="87" y="143" width="66" height="7" rx="3.5" fill="white" />
+      <Rect x="93" y="161" width="54" height="7" rx="3.5" fill="white" />
     </Svg>
   );
 }
 
-// ─── Login ───────────────────────────────────────────────────────────────────
+function SplashHeartIcon() {
+  return (
+    <Svg width={40} height={34} viewBox="48 75 144 120">
+      <Path
+        d="M120,195 C88,163 48,139 48,107 C48,83 64,75 80,75 C96,75 112,86.6 120,102.8 C128,86.6 144,75 160,75 C176,75 192,83 192,107 C192,139 152,163 120,195 Z"
+        fill="#007AFF"
+      />
+      <Rect x="82" y="115" width="76" height="7" rx="3.5" fill="white" />
+      <Rect x="87" y="133" width="66" height="7" rx="3.5" fill="white" />
+      <Rect x="93" y="151" width="54" height="7" rx="3.5" fill="white" />
+    </Svg>
+  );
+}
 
-function LoginScreen({ onLogin }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+const SPLASH_CARDS = [
+  { text: '0/10 skier, 10/10 lover',                   type: 'romantic' },
+  { text: "He's good, and his dog is the BEST",         type: 'platonic' },
+  { text: 'Ask for the passenger princess treatment',   type: 'romantic' },
+];
 
-  const handleLogin = async () => {
-    setError('');
-    setLoading(true);
-    try {
-      const res = await fetch(`${BASE_URL}/api/users/login/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+// ─── Login splash ─────────────────────────────────────────────────────────────
+
+function LoginSplash({ onPress }) {
+  const anims = useRef(
+    SPLASH_CARDS.map(() => ({
+      opacity: new Animated.Value(0),
+      translateY: new Animated.Value(16),
+    }))
+  ).current;
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      anims.forEach((anim, i) => {
+        setTimeout(() => {
+          Animated.parallel([
+            Animated.timing(anim.opacity,     { toValue: 1, duration: 1400, useNativeDriver: true }),
+            Animated.timing(anim.translateY,  { toValue: 0, duration: 1400, useNativeDriver: true }),
+          ]).start();
+        }, i * 1400);
       });
-      if (!res.ok) throw new Error('Invalid credentials');
-      const { access } = await res.json();
-      onLogin(access);
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    }, 1050);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} activeOpacity={1} onPress={onPress}>
       <LoginLogo />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
-      <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-        {loading
-          ? <ActivityIndicator color="#fff" />
-          : <Text style={styles.buttonText}>Login</Text>}
-      </TouchableOpacity>
+      {SPLASH_CARDS.map((card, i) => (
+        <Animated.View
+          key={i}
+          style={[
+            styles.splashCard,
+            card.type === 'romantic' ? styles.romanticCard : styles.platonicCard,
+            { opacity: anims[i].opacity, transform: [{ translateY: anims[i].translateY }] },
+          ]}
+        >
+          <View style={styles.splashCardIcon}>
+            <SplashHeartIcon />
+          </View>
+          <Text style={styles.splashCardText}>{card.text}</Text>
+        </Animated.View>
+      ))}
       <StatusBar style="auto" />
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -283,6 +290,56 @@ function EndorserModal({ endorser, accessToken, originalProfile, onClose }) {
   );
 }
 
+// ─── Feedback screen ─────────────────────────────────────────────────────────
+
+function FeedbackScreen() {
+  const [comments, setComments] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    try {
+      await fetch(`${BASE_URL}/api/users/feedback/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comments }),
+      });
+    } catch (_) {}
+    setSubmitting(false);
+    setSubmitted(true);
+  };
+
+  if (submitted) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.feedbackThankYou}>Thank you!</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.centered}>
+      <Text style={styles.feedbackPrompt}>
+        Thanks for playing! Any feedback?
+      </Text>
+      <TextInput
+        style={styles.feedbackInput}
+        placeholder="constructive, destructive, or reductive"
+        placeholderTextColor="#bbb"
+        value={comments}
+        onChangeText={setComments}
+        multiline
+      />
+      <TouchableOpacity style={styles.feedbackButton} onPress={handleSubmit} disabled={submitting}>
+        {submitting
+          ? <ActivityIndicator color="#fff" />
+          : <Text style={styles.feedbackButtonText}>Submit</Text>}
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 // ─── SwipeView ────────────────────────────────────────────────────────────────
 
 function SwipeView({ accessToken }) {
@@ -294,6 +351,19 @@ function SwipeView({ accessToken }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedEndorser, setSelectedEndorser] = useState(null);
+  const [bannerMsg, setBannerMsg] = useState('');
+  const [bannerColor, setBannerColor] = useState('#CC0000');
+  const bannerAnim = useRef(new Animated.Value(-80)).current;
+
+  const showBanner = (msg, color, onDone) => {
+    setBannerMsg(msg);
+    setBannerColor(color);
+    Animated.sequence([
+      Animated.timing(bannerAnim, { toValue: 0,   duration: 280, useNativeDriver: true }),
+      Animated.delay(1500),
+      Animated.timing(bannerAnim, { toValue: -80, duration: 280, useNativeDriver: true }),
+    ]).start(() => onDone?.());
+  };
 
   useEffect(() => {
     fetch(`${BASE_URL}/api/users/candidates/`, {
@@ -325,10 +395,17 @@ function SwipeView({ accessToken }) {
 
   if (loading) return <View style={styles.centered}><ActivityIndicator size="large" color="#007AFF" /></View>;
   if (error)   return <View style={styles.centered}><Text style={styles.errorText}>Failed to load ({error})</Text></View>;
-  if (!profile) return <View style={styles.centered}><Text style={styles.emptyText}>No more profiles</Text></View>;
+  if (!profile) return <FeedbackScreen />;
 
   return (
     <View style={styles.swipeContainer}>
+      <Animated.View
+        style={[styles.killBanner, { backgroundColor: bannerColor, transform: [{ translateY: bannerAnim }] }]}
+        pointerEvents="none"
+      >
+        <Text style={styles.killBannerText}>{bannerMsg}</Text>
+      </Animated.View>
+
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 130 }}>
         <ProfileBody
           profile={profile}
@@ -342,6 +419,20 @@ function SwipeView({ accessToken }) {
         <TouchableOpacity style={[styles.actionButton, styles.nopeButton]} onPress={advance}>
           <Text style={styles.actionButtonText}>✕</Text>
         </TouchableOpacity>
+        {profile.can_try_to_kill && (
+          <TouchableOpacity
+            style={[styles.actionButton, styles.killButton]}
+            onPress={() => {
+              if (profile.is_unkillable) {
+                showBanner('Haha, good luck with that', '#CC0000');
+              } else {
+                showBanner('Good Call', '#4CDE8F', advance);
+              }
+            }}
+          >
+            <Text style={[styles.actionButtonText, styles.killButtonText]}>KILL</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity style={[styles.actionButton, styles.likeButton]} onPress={advance}>
           <Text style={styles.actionButtonText}>♥</Text>
         </TouchableOpacity>
@@ -362,11 +453,50 @@ function SwipeView({ accessToken }) {
 // ─── Root ─────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [screen, setScreen] = useState('login');
   const [accessToken, setAccessToken] = useState(null);
+  const { height } = useWindowDimensions();
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const dismissTimer = useRef(null);
+  const dismissed = useRef(false);
 
-  if (screen === 'swipe') return <SwipeView accessToken={accessToken} />;
-  return <LoginScreen onLogin={token => { setAccessToken(token); setScreen('swipe'); }} />;
+  const dismiss = () => {
+    if (dismissed.current) return;
+    dismissed.current = true;
+    if (dismissTimer.current) clearTimeout(dismissTimer.current);
+    Animated.timing(slideAnim, {
+      toValue: -height,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  useEffect(() => {
+    const mountTime = Date.now();
+
+    fetch(`${BASE_URL}/api/users/login/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'test@test.com', password: 'password' }),
+    })
+      .then(r => r.json())
+      .then(({ access }) => {
+        setAccessToken(access);
+        const delay = Math.max(0, 7000 - (Date.now() - mountTime));
+        dismissTimer.current = setTimeout(dismiss, delay);
+      })
+      .catch(() => {});
+  }, []);
+
+  return (
+    <View style={{ flex: 1 }}>
+      {accessToken && <SwipeView accessToken={accessToken} />}
+      <Animated.View
+        style={[StyleSheet.absoluteFill, { transform: [{ translateY: slideAnim }] }]}
+      >
+        <LoginSplash onPress={dismiss} />
+      </Animated.View>
+    </View>
+  );
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
@@ -377,16 +507,40 @@ const styles = StyleSheet.create({
     flex: 1, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center',
   },
 
-  input: {
-    width: 280, borderWidth: 1, borderColor: '#ccc', borderRadius: 8,
-    padding: 12, marginBottom: 16, textAlign: 'center',
-  },
-  button: {
-    width: 280, backgroundColor: '#007AFF', borderRadius: 8,
-    padding: 14, alignItems: 'center', marginBottom: 12,
-  },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
   errorText: { color: '#FF4458', fontSize: 14 },
+
+  // Feedback screen
+  feedbackPrompt: {
+    fontSize: 20, fontWeight: '700', textAlign: 'center',
+    color: '#111', paddingHorizontal: 32, marginBottom: 24, lineHeight: 28,
+  },
+  feedbackInput: {
+    width: 300, minHeight: 100, borderWidth: 1, borderColor: '#ccc',
+    borderRadius: 10, padding: 14, fontSize: 15, color: '#333',
+    textAlignVertical: 'top', marginBottom: 16,
+  },
+  feedbackButton: {
+    width: 300, backgroundColor: '#007AFF', borderRadius: 10,
+    padding: 14, alignItems: 'center',
+  },
+  feedbackButtonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  feedbackThankYou: { fontSize: 28, fontWeight: '800', color: '#111' },
+
+  // Splash cards
+  splashCard: {
+    flexDirection: 'row', alignItems: 'center',
+    borderWidth: 1.5, borderRadius: 12, padding: 12,
+    marginBottom: 10, width: 280,
+  },
+  splashCardIcon: {
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: '#E6F4FE',
+    alignItems: 'center', justifyContent: 'center',
+    marginRight: 12,
+  },
+  splashCardText: {
+    flex: 1, fontSize: 14, color: '#333', fontStyle: 'italic',
+  },
 
   // SwipeView shell
   swipeContainer: { flex: 1, backgroundColor: '#fff' },
@@ -448,7 +602,15 @@ const styles = StyleSheet.create({
     width: 64, height: 64, borderRadius: 32,
     alignItems: 'center', justifyContent: 'center', elevation: 3,
   },
+  killBanner: {
+    position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100,
+    paddingVertical: 18, alignItems: 'center',
+  },
+  killBannerText: { color: '#fff', fontSize: 16, fontWeight: '800', letterSpacing: 0.5 },
+
   nopeButton: { backgroundColor: '#FF4458' },
+  killButton: { backgroundColor: '#CC0000' },
+  killButtonText: { fontSize: 18, letterSpacing: 1 },
   likeButton: { backgroundColor: '#4CDE8F' },
   actionButtonText: { fontSize: 28, color: '#fff', fontWeight: '700' },
 
