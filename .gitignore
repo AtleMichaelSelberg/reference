@@ -12,6 +12,24 @@ staticfiles/
 # Environment
 .env
 *.env.local
+.env.*
+*.env
+!.env.example
+!*.env.example
+
+# Private keys, credentials, and local databases
+*.pem
+*.key
+*.p8
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.mobileprovision
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+.claude/settings.local.json
 
 # Node / Expo
 node_modules/

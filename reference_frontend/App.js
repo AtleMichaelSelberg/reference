@@ -84,7 +84,7 @@ function LoginSplash({ onPress }) {
   }, []);
 
   return (
-    <TouchableOpacity style={styles.container} activeOpacity={1} onPress={onPress}>
+    <TouchableOpacity style={styles.container} activeOpacity={1} onPress={onPress} accessibilityRole="button" accessibilityLabel="Continue to sign in">
       <LoginLogo />
       {SPLASH_CARDS.map((card, i) => (
         <Animated.View
@@ -101,8 +101,70 @@ function LoginSplash({ onPress }) {
           <Text style={styles.splashCardText}>{card.text}</Text>
         </Animated.View>
       ))}
+      <Text>Tap to sign in</Text>
       <StatusBar style="auto" />
     </TouchableOpacity>
+  );
+}
+
+function LoginScreen({ onLogin }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (loading || !email.trim() || !password) return;
+    setError('');
+    setLoading(true);
+    try {
+      const res = await fetch(`${BASE_URL}/api/users/login/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+      if (!res.ok) throw new Error('Invalid email or password.');
+      const { access } = await res.json();
+      if (!access) throw new Error('Sign-in failed. Please try again.');
+      setPassword('');
+      onLogin(access);
+    } catch (e) {
+      setError(e.message === 'Invalid email or password.' ? e.message : 'Unable to sign in. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <LoginLogo />
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        accessibilityLabel="Email"
+        autoComplete="email"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        accessibilityLabel="Password"
+        autoComplete="current-password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      <TouchableOpacity style={styles.button} onPress={handleLogin} accessibilityRole="button" disabled={loading || !email.trim() || !password}>
+        {loading
+          ? <ActivityIndicator color="#fff" />
+          : <Text style={styles.buttonText}>Sign in</Text>}
+      </TouchableOpacity>
+      <StatusBar style="auto" />
+    </View>
   );
 }
 
@@ -456,13 +518,11 @@ export default function App() {
   const [accessToken, setAccessToken] = useState(null);
   const { height } = useWindowDimensions();
   const slideAnim = useRef(new Animated.Value(0)).current;
-  const dismissTimer = useRef(null);
   const dismissed = useRef(false);
 
   const dismiss = () => {
     if (dismissed.current) return;
     dismissed.current = true;
-    if (dismissTimer.current) clearTimeout(dismissTimer.current);
     Animated.timing(slideAnim, {
       toValue: -height,
       duration: 500,
@@ -470,26 +530,12 @@ export default function App() {
     }).start();
   };
 
-  useEffect(() => {
-    const mountTime = Date.now();
-
-    fetch(`${BASE_URL}/api/users/login/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'test@test.com', password: 'password' }),
-    })
-      .then(r => r.json())
-      .then(({ access }) => {
-        setAccessToken(access);
-        const delay = Math.max(0, 7000 - (Date.now() - mountTime));
-        dismissTimer.current = setTimeout(dismiss, delay);
-      })
-      .catch(() => {});
-  }, []);
 
   return (
     <View style={{ flex: 1 }}>
-      {accessToken && <SwipeView accessToken={accessToken} />}
+      {accessToken
+        ? <SwipeView accessToken={accessToken} />
+        : <LoginScreen onLogin={setAccessToken} />}
       <Animated.View
         style={[StyleSheet.absoluteFill, { transform: [{ translateY: slideAnim }] }]}
       >
@@ -507,6 +553,15 @@ const styles = StyleSheet.create({
     flex: 1, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center',
   },
 
+  input: {
+    width: 300, borderWidth: 1, borderColor: '#ccc', borderRadius: 10,
+    padding: 14, fontSize: 16, marginBottom: 12,
+  },
+  button: {
+    width: 300, backgroundColor: '#007AFF', borderRadius: 10,
+    padding: 14, alignItems: 'center', marginTop: 12,
+  },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
   errorText: { color: '#FF4458', fontSize: 14 },
 
   // Feedback screen
