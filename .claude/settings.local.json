@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(.venv/bin/python manage.py makemigrations)",
-      "Bash(.venv/bin/python manage.py migrate)"
-    ]
-  }
-}

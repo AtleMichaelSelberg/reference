@@ -1,0 +1,16 @@
+[extend]
+useDefault = true
+
+# Gitleaks defaults intentionally allow Django's development key prefix.
+# Public repositories must not provide a reusable fallback signing key.
+[[rules]]
+id = "django-committed-signing-key"
+description = "Committed Django signing key"
+regex = '''django-insecure-[^\s'"\r\n]+'''
+
+[[rules]]
+id = "embedded-login-password"
+description = "Literal login password in application or seed data"
+regex = '''(?i)['"]?password['"]?\s*:\s*['"]([^'"\r\n]+)['"]'''
+secretGroup = 1
+path = '''(^|/)(App\.[jt]sx?|seed\.py)$'''

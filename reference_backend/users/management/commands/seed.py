@@ -124542,7 +124542,6 @@ CHARACTERS = [
     {
         'username': 'jon_snow',
         'email': 'jon.snow@nightswatch.com',
-        'password': 'Ghost1234!',
         'first_name': 'Jon',
         'last_name': 'Snow',
         'gender': 'male',
@@ -124552,7 +124551,6 @@ CHARACTERS = [
     {
         'username': 'daenerys_targaryen',
         'email': 'dany@dragonstone.com',
-        'password': 'Dracarys1!',
         'first_name': 'Daenerys',
         'last_name': 'Targaryen',
         'gender': 'female',
@@ -124562,7 +124560,6 @@ CHARACTERS = [
     {
         'username': 'ygritte',
         'email': 'ygritte@freefolk.north',
-        'password': 'YouKnow0!',
         'first_name': 'Ygritte',
         'last_name': '',
         'gender': 'female',
@@ -124572,7 +124569,6 @@ CHARACTERS = [
     {
         'username': 'ramsay_bolton',
         'email': 'ramsay@dreadfort.com',
-        'password': 'Flaying1s4Fun!',
         'first_name': 'Ramsay',
         'last_name': 'Bolton',
         'gender': 'male',
@@ -124583,7 +124579,6 @@ CHARACTERS = [
     {
         'username': 'cersei_lannister',
         'email': 'cersei@kingslanding.gov',
-        'password': 'Wildfire7!',
         'first_name': 'Cersei',
         'last_name': 'Lannister',
         'gender': 'female',
@@ -124593,7 +124588,6 @@ CHARACTERS = [
     {
         'username': 'jaime_lannister',
         'email': 'jaime@kingsguard.com',
-        'password': 'Kingslayer1!',
         'first_name': 'Jaime',
         'last_name': 'Lannister',
         'gender': 'male',
@@ -124603,7 +124597,6 @@ CHARACTERS = [
     {
         'username': 'tyrion_lannister',
         'email': 'tyrion@casterly.rock',
-        'password': 'ImpWine9!',
         'first_name': 'Tyrion',
         'last_name': 'Lannister',
         'gender': 'male',
@@ -124613,7 +124606,6 @@ CHARACTERS = [
     {
         'username': 'khal_drogo',
         'email': 'drogo@dothraki.sea',
-        'password': 'Khalasar1!',
         'first_name': 'Khal',
         'last_name': 'Drogo',
         'gender': 'male',
@@ -124623,7 +124615,6 @@ CHARACTERS = [
     {
         'username': 'petyr_baelish',
         'email': 'littlefinger@kingslanding.gov',
-        'password': 'Chaos1sALadder!',
         'first_name': 'Petyr',
         'last_name': 'Baelish',
         'gender': 'male',
@@ -124634,7 +124625,6 @@ CHARACTERS = [
     {
         'username': 'margaery_tyrell',
         'email': 'margaery@highgarden.com',
-        'password': 'Roses4Ever!',
         'first_name': 'Margaery',
         'last_name': 'Tyrell',
         'gender': 'female',
@@ -124644,7 +124634,6 @@ CHARACTERS = [
     {
         'username': 'robb_stark',
         'email': 'robb@winterfell.net',
-        'password': 'KingNorth1!',
         'first_name': 'Robb',
         'last_name': 'Stark',
         'gender': 'male',
@@ -124654,7 +124643,6 @@ CHARACTERS = [
     {
         'username': 'the_mountain',
         'email': 'gregor@clegane.com',
-        'password': 'Unstoppable1!',
         'first_name': 'Gregor',
         'last_name': 'Clegane',
         'gender': 'male',
@@ -124666,7 +124654,6 @@ CHARACTERS = [
     {
         'username': 'talisa_stark',
         'email': 'talisa@volantis.com',
-        'password': 'Volantis1!',
         'first_name': 'Talisa',
         'last_name': 'Stark',
         'gender': 'female',
@@ -124676,7 +124663,6 @@ CHARACTERS = [
     {
         'username': 'test',
         'email': 'test@test.com',
-        'password': 'password',
         'first_name': 'Test',
         'last_name': '',
         'gender': 'female',
@@ -124747,7 +124733,7 @@ class Command(BaseCommand):
                 user = User.objects.create_user(
                     username=data['username'],
                     email=data['email'],
-                    password=data['password'],
+                    password=None,  # Seed profiles cannot sign in until a password is set.
                     first_name=data['first_name'],
                     last_name=data['last_name'],
                     gender=data['gender'],

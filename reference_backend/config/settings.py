@@ -2,14 +2,17 @@ import os
 from pathlib import Path
 from datetime import timedelta
 import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-7!634e&f_4n3wi6z5q+zriuy-4vz7m^tk(r&ve&=3rk!zat_o@')
+SECRET_KEY = os.environ.get('SECRET_KEY', '')
+if not SECRET_KEY.strip():
+    raise ImproperlyConfigured('Set the SECRET_KEY environment variable to a private, randomly generated key.')
 
-DEBUG = os.environ.get('DEBUG', 'true').lower() == 'true'
+DEBUG = os.environ.get('DEBUG', 'false').lower() == 'true'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,[::1]').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
